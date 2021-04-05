@@ -6,12 +6,14 @@ func inc1(i *int) {
 	*i = *i + 1
 
 }
+
 func inc2(i *int) {
 	*i = *i + 1
 }
 func inc3(i *int) {
 	*i = *i + 1
 }
+
 func inc4(i *int) {
 	*i = *i + 1
 
