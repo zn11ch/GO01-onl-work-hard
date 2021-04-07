@@ -1,5 +1,5 @@
-.PHONY: run
+.PHONY: test
 test:
 	go test -v
 
-.DEFAULT_GOAL := run
+.DEFAULT_GOAL := test
