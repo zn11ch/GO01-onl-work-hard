@@ -1,7 +1,7 @@
-package main
+package workers
 
 import (
-	"fmt"
+	"github.com/zn11ch/GO01-onl-work-hard/hw_lesson7/01/internal"
 	"strings"
 	"sync"
 
@@ -10,13 +10,13 @@ import (
 
 type CountWords struct {
 	Worker
-	line   *Lines
-	words  *Words
+	line   *internal.Lines
+	words  *internal.Words
 	quit   chan bool
 	sendWG *sync.WaitGroup
 }
 
-func NewCountWords(worker Worker, lines *Lines, words *Words, quit chan bool, sendWG *sync.WaitGroup) *CountWords {
+func NewCountWords(worker Worker, lines *internal.Lines, words *internal.Words, quit chan bool, sendWG *sync.WaitGroup) *CountWords {
 	return &CountWords{
 		Worker: worker,
 		line:   lines,
@@ -39,35 +39,29 @@ func (c *CountWords) Work(line string) {
 		}
 	}
 
-	c.sendWG.Add(1)
-	defer c.sendWG.Done()
 	c.Write(m)
 
 }
 
 func (c *CountWords) Stop() {
-
-	c.stopped = true
+	c.sendWG.Done()
+	c.Stopped = true
 	c.sendWG.Wait()
 	c.words.SafeClose()
-	c.wg.Done()
+	c.Wg.Done()
 }
 
 func (c *CountWords) Write(data map[string]int) {
-	c.sendWG.Add(1)
-	defer c.sendWG.Done()
 	c.words.C <- data
 }
 
-func (c *CountWords) eventLoop() {
-
+func (c *CountWords) EventLoop() {
 	for {
-		if c.stopped {
+		if c.Stopped {
 			return
 		}
 		select {
 		case line, ok := <-c.line.C:
-			fmt.Println(line, ok)
 			if ok {
 				c.Work(line)
 			} else {

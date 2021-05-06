@@ -1,20 +1,21 @@
-package main
+package workers
 
 import (
 	"bufio"
+	"github.com/zn11ch/GO01-onl-work-hard/hw_lesson7/01/internal"
 	"log"
 	"sync"
 )
 
 type FileReader struct {
 	Worker
-	lines   *Lines
+	lines   *internal.Lines
 	quit    chan bool
 	scanner *bufio.Scanner
 	sendWG  *sync.WaitGroup
 }
 
-func NewFileReader(worker Worker, lines *Lines, quit chan bool, scanner *bufio.Scanner, sendWG *sync.WaitGroup) *FileReader {
+func NewFileReader(worker Worker, lines *internal.Lines, quit chan bool, scanner *bufio.Scanner, sendWG *sync.WaitGroup) *FileReader {
 	return &FileReader{
 		Worker:  worker,
 		lines:   lines,
@@ -34,25 +35,24 @@ func (r *FileReader) Work() {
 		log.Fatal(err)
 	}
 	r.Stop()
-
 }
 
 func (r *FileReader) Write(data string) {
-	r.sendWG.Add(1)
-	defer r.sendWG.Done()
 	r.lines.C <- data
 }
 
 func (r *FileReader) Stop() {
-	r.stopped = true
-	r.wg.Done()
+	r.Stopped = true
+	r.Wg.Done()
+	r.sendWG.Done()
 	r.sendWG.Wait()
 	r.lines.SafeClose()
 }
 
-func (r *FileReader) eventLoop() {
+func (r *FileReader) EventLoop() {
+
 	for {
-		if r.stopped {
+		if r.Stopped {
 			return
 		}
 		select {

@@ -1,0 +1,6 @@
+{
+  "CheckLimit": 1,
+  "Workers": {
+    "FileRead": 2
+  }
+}
